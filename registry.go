@@ -11,19 +11,19 @@ import (
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 0, runnable, false, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, 0, 0, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleNowTask 现在立即执行一次
 func (scheduler *Scheduler) ScheduleNowTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 0, runnable, false, StatusTaskReady, nil, nil, true, names...)
+	return scheduler.Schedule(ctx, interval, 0, 0, runnable, false, StatusTaskReady, nil, nil, true, names...)
 }
 
 // ScheduleOnceTask 添加一个任务，只执行一次就关闭
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleOnceTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 1, runnable, false, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, 1, 0, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleTimesTask 执行一定次数终止的任务
@@ -31,7 +31,7 @@ func (scheduler *Scheduler) ScheduleOnceTask(ctx context.Context, interval time.
 // times执行次数
 // runnable 任务
 func (scheduler *Scheduler) ScheduleTimesTask(ctx context.Context, interval time.Duration, times int64, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, times, runnable, false, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, times, 0, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleTimesNowTask 现在立马执行一次
@@ -39,28 +39,28 @@ func (scheduler *Scheduler) ScheduleTimesTask(ctx context.Context, interval time
 // times执行次数
 // runnable 任务
 func (scheduler *Scheduler) ScheduleTimesNowTask(ctx context.Context, interval time.Duration, times int64, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, times, runnable, false, StatusTaskReady, nil, nil, true, names...)
+	return scheduler.Schedule(ctx, interval, times, 0, runnable, false, StatusTaskReady, nil, nil, true, names...)
 }
 
 // ScheduleSingletonTask 如果上一个任务还没执行完成，下一次任务已经到来，那么跳过这次执行 保证一个任务每次都只有一个协程在执行
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleSingletonTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, 0, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleSingletonNowTask 现在立马执行一次
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleSingletonNowTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, 0, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleSingletonOnceTask AddSingletonTask
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleSingletonOnceTask(ctx context.Context, interval time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, 1, runnable, true, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, 1, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleSingletonTimesTask AddSingletonTask
@@ -68,7 +68,7 @@ func (scheduler *Scheduler) ScheduleSingletonOnceTask(ctx context.Context, inter
 // times执行次数
 // runnable 任务
 func (scheduler *Scheduler) ScheduleSingletonTimesTask(ctx context.Context, interval time.Duration, times int64, runnable Runnable, names ...string) *Task {
-	return scheduler.Schedule(ctx, interval, times, runnable, true, StatusTaskReady, nil, nil, false, names...)
+	return scheduler.Schedule(ctx, interval, times, 0, runnable, true, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleDelayTask 延时任务
@@ -76,9 +76,7 @@ func (scheduler *Scheduler) ScheduleSingletonTimesTask(ctx context.Context, inte
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleDelayTask(ctx context.Context, interval time.Duration, delay time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.ScheduleOnceTask(ctx, delay, func(ctx context.Context) {
-		scheduler.Schedule(ctx, interval, 0, runnable, false, StatusTaskReady, nil, nil, false, names...)
-	})
+	return scheduler.Schedule(ctx, interval, 0, delay, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleDelayOnceTask 延时的一次性任务
@@ -86,9 +84,7 @@ func (scheduler *Scheduler) ScheduleDelayTask(ctx context.Context, interval time
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleDelayOnceTask(ctx context.Context, interval time.Duration, delay time.Duration, runnable Runnable, names ...string) *Task {
-	return scheduler.ScheduleOnceTask(ctx, delay, func(ctx context.Context) {
-		scheduler.Schedule(ctx, interval, 1, runnable, false, StatusTaskReady, nil, nil, false, names...)
-	})
+	return scheduler.Schedule(ctx, interval, 1, delay, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
 // ScheduleDelayTimesTask 延时的Times任务
@@ -97,12 +93,10 @@ func (scheduler *Scheduler) ScheduleDelayOnceTask(ctx context.Context, interval 
 // interval 时间间隔
 // runnable 任务
 func (scheduler *Scheduler) ScheduleDelayTimesTask(ctx context.Context, interval time.Duration, delay time.Duration, times int64, runnable Runnable, names ...string) *Task {
-	return scheduler.ScheduleOnceTask(ctx, delay, func(ctx context.Context) {
-		scheduler.Schedule(ctx, interval, times, runnable, false, StatusTaskReady, nil, nil, false, names...)
-	})
+	return scheduler.Schedule(ctx, interval, times, delay, runnable, false, StatusTaskReady, nil, nil, false, names...)
 }
 
-func (scheduler *Scheduler) Schedule(ctx context.Context, interval time.Duration, times int64, runnable Runnable, isSingleton bool, status int64, closeHandler CloseHandler, executeExceptionHandler ExecuteExceptionHandler, now bool, names ...string) *Task {
+func (scheduler *Scheduler) Schedule(ctx context.Context, interval time.Duration, times int64, delay time.Duration, runnable Runnable, isSingleton bool, status int64, closeHandler CloseHandler, executeExceptionHandler ExecuteExceptionHandler, now bool, names ...string) *Task {
 
 	var taskName string
 	if len(names) > 0 {
@@ -145,14 +139,32 @@ func (scheduler *Scheduler) Schedule(ctx context.Context, interval time.Duration
 	}
 
 	tlog.Info("Add task %s", taskName)
-	if now {
-		pos := scheduler.pos.Load()
-		task.nextPos = atom.NewInt64(pos)
-		task.checkAndRun(pos)
-		scheduler.executeAfter(task)
-	} else {
-		scheduler.taskQueue.Push(task, nextPos)
+
+	if delay > 0 {
+		scheduler.delay(delay, task)
+		return task
 	}
 
+	if now {
+		scheduler.now(task)
+		return task
+	}
+
+	scheduler.taskQueue.Push(task, nextPos)
 	return task
+}
+
+func (scheduler *Scheduler) now(task *Task) {
+	pos := scheduler.pos.Load()
+	task.nextPos = atom.NewInt64(pos)
+	task.checkAndRun(pos)
+	scheduler.executeAfter(task)
+}
+
+func (scheduler *Scheduler) delay(delay time.Duration, task *Task) {
+	time.AfterFunc(delay, func() {
+		// delay 之后应该立刻执行一次
+		scheduler.now(task)
+		scheduler.taskQueue.Push(task, task.nextPos.Load())
+	})
 }

@@ -9,11 +9,11 @@ import (
 )
 
 func main() {
-	//Now()
+	Now()
 	//Normal()
 	//Times()
 	//Delay()
-	Pool()
+	//Pool()
 
 }
 
